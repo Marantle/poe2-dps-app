@@ -14,15 +14,16 @@
             padding: 20px;
             background-color: #f4f4f4;
         }
-        h1 {
+        h1, h2 {
             color: #2c3e50;
             text-align: center;
         }
-        .container {
+        .calculator, .history {
             background-color: white;
             padding: 20px;
             border-radius: 5px;
             box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
         }
         textarea {
             width: 100%;
@@ -41,23 +42,126 @@
         button:hover {
             background-color: #2980b9;
         }
-        #results {
+        #results, #previousCalculations {
             margin-top: 20px;
         }
         .damage-type {
             font-weight: bold;
         }
+        .history-item {
+            border-bottom: 1px solid #eee;
+            padding: 10px 0;
+        }
+        .history-item:last-child {
+            border-bottom: none;
+        }
+        .history-link {
+            color: #3498db;
+            text-decoration: none;
+            cursor: pointer;
+        }
+        .history-link:hover {
+            text-decoration: underline;
+        }
+        .total-dps {
+            font-size: 0.9em;
+            color: #666;
+            margin-left: 5px;
+        }
+        .history-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        .clear-history-button {
+            background-color: #e74c3c;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 3px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .clear-history-button:hover {
+            background-color: #c0392b;
+        }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h1>Path of Exile 2 DPS Calculator</h1>
+    <h1>Path of Exile 2 DPS Calculator</h1>
+    <div class="calculator">
         <textarea id="itemInput" placeholder="Paste your item details here..."></textarea>
         <button id="calculateButton">Calculate DPS</button>
         <div id="results"></div>
     </div>
+    <div class="history">
+        <div class="history-header">
+            <h2>Previous Calculations</h2>
+            <button id="clearHistoryButton" class="clear-history-button">Clear History</button>
+        </div>
+        <div id="previousCalculations"></div>
+    </div>
 
     <script>
+        let calculations = [];
+
+        function extractItemNameAndType(input) {
+            const lines = input.split('\n');
+            let itemName = '';
+            let itemType = '';
+            let rarity = '';
+            let separatorCount = 0;
+            let hasErrorMessage = false;
+
+            for (let i = 0; i < lines.length; i++) {
+                const line = lines[i].trim();
+                
+                if (line.startsWith('Rarity:')) {
+                    rarity = line.split(':')[1].trim().toLowerCase();
+                    continue;
+                }
+
+                if (line === '--------') {
+                    separatorCount++;
+                    continue;
+                }
+
+                if (line === 'You cannot use this item. Its stats will be ignored') {
+                    hasErrorMessage = true;
+                    continue;
+                }
+
+                if (line.startsWith('Item Class:')) {
+                    continue;
+                }
+
+                if (!itemName && !line.includes(':')) {
+                    itemName = line;
+                    if (rarity === 'magic') {
+                        break;
+                    }
+                } else if (itemName && !itemType && !line.includes(':')) {
+                    itemType = line;
+                    break;
+                }
+
+                if (hasErrorMessage && separatorCount === 2) {
+                    break;
+                }
+
+                if (!hasErrorMessage && separatorCount === 1) {
+                    break;
+                }
+            }
+
+            if (rarity === 'magic') {
+                itemType = 'Magic Item';
+            }
+
+            return { name: itemName || 'Unnamed Item', type: itemType || 'Unknown Type' };
+        }
+
         function extractDamageRange(input, damageType) {
             const regex = new RegExp(`${damageType}:\\s*(\\d+)-(\\d+)`, 'i');
             const match = input.match(regex);
@@ -67,19 +171,6 @@
                 return { min, max };
             }
             return { min: 0, max: 0 };
-        }
-
-        function extractElementalDamage(input) {
-            const regex = /Elemental Damage: (.+)/;
-            const match = input.match(regex);
-            if (match) {
-                const damages = match[1].split(', ');
-                return damages.map(damage => {
-                    const [min, max] = damage.match(/(\d+)-(\d+)/).slice(1, 3).map(Number);
-                    return { min, max };
-                });
-            }
-            return [];
         }
 
         function extractAttacksPerSecond(input) {
@@ -92,44 +183,99 @@
             return averageDamage * attacksPerSecond;
         }
 
-        function calculateDPS() {
-            const input = document.getElementById('itemInput').value;
-            const results = document.getElementById('results');
-            
-            // Extract damage ranges and attack speed
+        function calculateDPS(input) {
+            const { name: itemName, type: itemType } = extractItemNameAndType(input);
             const physicalDamage = extractDamageRange(input, 'Physical Damage');
-            const elementalDamages = extractElementalDamage(input);
+            const fireDamage = extractDamageRange(input, 'Fire Damage');
+            const coldDamage = extractDamageRange(input, 'Cold Damage');
+            const lightningDamage = extractDamageRange(input, 'Lightning Damage');
+            const chaosDamage = extractDamageRange(input, 'Chaos Damage');
             const attacksPerSecond = extractAttacksPerSecond(input);
 
-            // Calculate DPS for each damage type
             const physicalDPS = calculateDPSForType(physicalDamage, attacksPerSecond);
-            const elementalDPSs = elementalDamages.map(damage => calculateDPSForType(damage, attacksPerSecond));
+            const fireDPS = calculateDPSForType(fireDamage, attacksPerSecond);
+            const coldDPS = calculateDPSForType(coldDamage, attacksPerSecond);
+            const lightningDPS = calculateDPSForType(lightningDamage, attacksPerSecond);
+            const chaosDPS = calculateDPSForType(chaosDamage, attacksPerSecond);
 
-            // Calculate combined elemental DPS
-            const elementalDPS = elementalDPSs.reduce((sum, dps) => sum + dps, 0);
+            const totalDPS = physicalDPS + fireDPS + coldDPS + lightningDPS + chaosDPS;
 
-            // Prepare results HTML
-            let resultsHTML = '<h2>DPS Calculations:</h2>';
+            let resultsHTML = `<h2>${itemName} (${itemType})</h2>`;
+            resultsHTML += '<h3>DPS Calculations:</h3>';
             if (physicalDPS > 0) resultsHTML += `<p><span class="damage-type">Physical DPS:</span> ${physicalDPS.toFixed(2)}</p>`;
-            
-            const damageTypes = ['Fire', 'Cold', 'Lightning'];
-            elementalDPSs.forEach((dps, index) => {
-                if (dps > 0) resultsHTML += `<p><span class="damage-type">${damageTypes[index]} DPS:</span> ${dps.toFixed(2)}</p>`;
-            });
-            
-            if (elementalDPS > 0) resultsHTML += `<p><span class="damage-type">Combined Elemental DPS:</span> ${elementalDPS.toFixed(2)}</p>`;
-            
-            const totalDPS = physicalDPS + elementalDPS;
+            if (fireDPS > 0) resultsHTML += `<p><span class="damage-type">Fire DPS:</span> ${fireDPS.toFixed(2)}</p>`;
+            if (coldDPS > 0) resultsHTML += `<p><span class="damage-type">Cold DPS:</span> ${coldDPS.toFixed(2)}</p>`;
+            if (lightningDPS > 0) resultsHTML += `<p><span class="damage-type">Lightning DPS:</span> ${lightningDPS.toFixed(2)}</p>`;
+            if (chaosDPS > 0) resultsHTML += `<p><span class="damage-type">Chaos DPS:</span> ${chaosDPS.toFixed(2)}</p>`;
             resultsHTML += `<p><span class="damage-type">Total DPS:</span> ${totalDPS.toFixed(2)}</p>`;
             
-            // Display results
-            results.innerHTML = resultsHTML;
+            return { itemName, itemType, resultsHTML, totalDPS };
+        }
+
+        function saveCalculation(itemName, itemType, resultsHTML, itemData, totalDPS) {
+            let existingNames = calculations.map(calc => calc.name);
+            let newName = itemName;
+            let counter = 1;
+            while (existingNames.includes(newName)) {
+                newName = `${itemName} ${counter}`;
+                counter++;
+            }
+
+            calculations.unshift({ name: newName, type: itemType, results: resultsHTML, data: itemData, totalDPS: totalDPS });
+            if (calculations.length > 25) {
+                calculations.pop();
+            }
+
+            localStorage.setItem('poe2_dps_calculations', JSON.stringify(calculations));
+            displayPreviousCalculations();
+        }
+
+        function displayPreviousCalculations() {
+            const previousCalculations = document.getElementById('previousCalculations');
+            previousCalculations.innerHTML = calculations.map((calc, index) => `
+                <div class="history-item">
+                    <a class="history-link" onclick="loadPreviousCalculation(${index})">
+                        ${calc.name} (${calc.type}) <span class="total-dps">(Total DPS: ${calc.totalDPS.toFixed(2)})</span>
+                    </a>
+                </div>
+            `).join('');
+        }
+
+        function loadPreviousCalculation(index) {
+            const calc = calculations[index];
+            document.getElementById('itemInput').value = calc.data;
+            document.getElementById('results').innerHTML = calc.results;
+        }
+
+        function performCalculation() {
+            const input = document.getElementById('itemInput').value;
+            const { itemName, itemType, resultsHTML, totalDPS } = calculateDPS(input);
+            document.getElementById('results').innerHTML = resultsHTML;
+            saveCalculation(itemName, itemType, resultsHTML, input, totalDPS);
+        }
+
+        function loadCalculations() {
+            const storedCalculations = localStorage.getItem('poe2_dps_calculations');
+            if (storedCalculations) {
+                calculations = JSON.parse(storedCalculations);
+                displayPreviousCalculations();
+            }
+        }
+
+        function clearHistory() {
+            calculations = [];
+            localStorage.removeItem('poe2_dps_calculations');
+            displayPreviousCalculations();
         }
 
         document.addEventListener('DOMContentLoaded', () => {
             const calculateButton = document.getElementById('calculateButton');
-            calculateButton.addEventListener('click', calculateDPS);
+            const clearHistoryButton = document.getElementById('clearHistoryButton');
+            calculateButton.addEventListener('click', performCalculation);
+            clearHistoryButton.addEventListener('click', clearHistory);
+            loadCalculations();
         });
     </script>
 </body>
 </html>
+
