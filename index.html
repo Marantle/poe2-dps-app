@@ -345,7 +345,8 @@
         let dpsResults = {};
         let totalDPS = 0;
         let totalElementalDPS = 0;
-
+        let physicalDps = 0;
+        let chaosDps = 0;
         for (const [damageType, range] of Object.entries(damageRanges)) {
           const dps = calculateDPSForType(range, attacksPerSecond);
           dpsResults[damageType] = dps;
@@ -356,6 +357,10 @@
             damageType !== "Chaos Damage"
           ) {
             totalElementalDPS += dps;
+          } else if (damageType === "Physical Damage") {
+            physicalDps = dps;
+          } else if (damageType === "Chaos Damage") {
+            chaosDps += dps;
           }
         }
 
@@ -378,7 +383,7 @@
           2
         )}</p>`;
 
-        return { itemName, itemType, resultsHTML, totalDPS, totalElementalDPS };
+        return { itemName, itemType, resultsHTML, totalDPS, totalElementalDPS, physicalDps };
       }
 
       function saveCalculation(
@@ -387,7 +392,8 @@
         resultsHTML,
         itemData,
         totalDPS,
-        totalElementalDPS
+        totalElementalDPS,
+        physicalDps
       ) {
         let existingNames = calculations.map((calc) => calc.name);
         let newName = itemName;
@@ -404,6 +410,7 @@
           data: itemData,
           totalDPS: totalDPS,
           totalElementalDPS: totalElementalDPS,
+          physicalDps: physicalDps
         });
 
         if (calculations.length > 25) {
@@ -429,6 +436,7 @@
                             ${calc.name} (${calc.type}) 
                             <span class="total-dps">
                                 (Total DPS: ${calc.totalDPS.toFixed(2)}, 
+                                Physical DPS: ${calc.physicalDps.toFixed(2)}, 
                                 Elemental DPS: ${calc.totalElementalDPS.toFixed(
                                   2
                                 )})
@@ -448,7 +456,7 @@
 
       function performCalculation() {
         const input = document.getElementById("itemInput").value;
-        const { itemName, itemType, resultsHTML, totalDPS, totalElementalDPS } =
+        const { itemName, itemType, resultsHTML, totalDPS, totalElementalDPS, physicalDps } =
           calculateDPS(input);
         document.getElementById("results").innerHTML = resultsHTML;
         saveCalculation(
@@ -457,7 +465,8 @@
           resultsHTML,
           input,
           totalDPS,
-          totalElementalDPS
+          totalElementalDPS, 
+          physicalDps
         );
       }
 
