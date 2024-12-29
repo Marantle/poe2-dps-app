@@ -6,66 +6,91 @@
     <title>Path of Exile 2 DPS Calculator</title>
     <style>
         body {
-            font-family: Arial, sans-serif;
+            font-family: 'Fontin', Arial, sans-serif;
             line-height: 1.6;
-            color: #333;
+            color: #d3d3d3;
             max-width: 800px;
             margin: 0 auto;
             padding: 20px;
-            background-color: #f4f4f4;
+            background-color: #0a0a0a;
+            background-image: linear-gradient(45deg, #0a0a0a 25%, #151515 25%, #151515 50%, #0a0a0a 50%, #0a0a0a 75%, #151515 75%, #151515 100%);
+            background-size: 40px 40px;
         }
         h1, h2 {
-            color: #2c3e50;
+            color: #c60;
             text-align: center;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
         }
         .calculator, .history {
-            background-color: white;
+            background-color: rgba(30, 30, 30, 0.9);
             padding: 20px;
             border-radius: 5px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            box-shadow: 0 0 10px rgba(198, 102, 0, 0.3), inset 0 0 30px rgba(0, 0, 0, 0.5);
             margin-bottom: 20px;
+            border: 1px solid #c60;
         }
         textarea {
             width: 100%;
             height: 200px;
             margin-bottom: 10px;
+            background-color: #1a1a1a;
+            color: #d3d3d3;
+            border: 1px solid #c60;
+            padding: 10px;
+            font-family: 'Courier New', monospace;
         }
         button {
-            background-color: #3498db;
-            color: white;
+            background-color: #c60;
+            color: #0a0a0a;
             border: none;
             padding: 10px 20px;
             border-radius: 5px;
             cursor: pointer;
-            transition: background-color 0.3s;
+            transition: background-color 0.3s, transform 0.1s;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 1px;
         }
         button:hover {
-            background-color: #2980b9;
+            background-color: #ff8c00;
+            transform: translateY(-2px);
+        }
+        button:active {
+            transform: translateY(0);
         }
         #results, #previousCalculations {
             margin-top: 20px;
         }
         .damage-type {
             font-weight: bold;
+            color: #ff8c00;
         }
+        .damage-type.physical { color: #d3d3d3; }
+        .damage-type.fire { color: #ff4500; }
+        .damage-type.cold { color: #1e90ff; }
+        .damage-type.lightning { color: #ffd700; }
+        .damage-type.chaos { color: #8a2be2; }
+        .damage-type.total { color: #ff8c00; }
         .history-item {
-            border-bottom: 1px solid #eee;
+            border-bottom: 1px solid #333;
             padding: 10px 0;
         }
         .history-item:last-child {
             border-bottom: none;
         }
         .history-link {
-            color: #3498db;
+            color: #c60;
             text-decoration: none;
             cursor: pointer;
+            transition: color 0.3s;
         }
         .history-link:hover {
+            color: #ff8c00;
             text-decoration: underline;
         }
         .total-dps {
             font-size: 0.9em;
-            color: #666;
+            color: #888;
             margin-left: 5px;
         }
         .history-header {
@@ -75,8 +100,8 @@
             margin-bottom: 10px;
         }
         .clear-history-button {
-            background-color: #e74c3c;
-            color: white;
+            background-color: #8b0000;
+            color: #d3d3d3;
             border: none;
             padding: 5px 10px;
             border-radius: 3px;
@@ -84,7 +109,7 @@
             transition: background-color 0.3s;
         }
         .clear-history-button:hover {
-            background-color: #c0392b;
+            background-color: #a00;
         }
     </style>
 </head>
@@ -202,12 +227,12 @@
 
             let resultsHTML = `<h2>${itemName} (${itemType})</h2>`;
             resultsHTML += '<h3>DPS Calculations:</h3>';
-            if (physicalDPS > 0) resultsHTML += `<p><span class="damage-type">Physical DPS:</span> ${physicalDPS.toFixed(2)}</p>`;
-            if (fireDPS > 0) resultsHTML += `<p><span class="damage-type">Fire DPS:</span> ${fireDPS.toFixed(2)}</p>`;
-            if (coldDPS > 0) resultsHTML += `<p><span class="damage-type">Cold DPS:</span> ${coldDPS.toFixed(2)}</p>`;
-            if (lightningDPS > 0) resultsHTML += `<p><span class="damage-type">Lightning DPS:</span> ${lightningDPS.toFixed(2)}</p>`;
-            if (chaosDPS > 0) resultsHTML += `<p><span class="damage-type">Chaos DPS:</span> ${chaosDPS.toFixed(2)}</p>`;
-            resultsHTML += `<p><span class="damage-type">Total DPS:</span> ${totalDPS.toFixed(2)}</p>`;
+            if (physicalDPS > 0) resultsHTML += `<p><span class="damage-type physical">Physical DPS:</span> ${physicalDPS.toFixed(2)}</p>`;
+            if (fireDPS > 0) resultsHTML += `<p><span class="damage-type fire">Fire DPS:</span> ${fireDPS.toFixed(2)}</p>`;
+            if (coldDPS > 0) resultsHTML += `<p><span class="damage-type cold">Cold DPS:</span> ${coldDPS.toFixed(2)}</p>`;
+            if (lightningDPS > 0) resultsHTML += `<p><span class="damage-type lightning">Lightning DPS:</span> ${lightningDPS.toFixed(2)}</p>`;
+            if (chaosDPS > 0) resultsHTML += `<p><span class="damage-type chaos">Chaos DPS:</span> ${chaosDPS.toFixed(2)}</p>`;
+            resultsHTML += `<p><span class="damage-type total">Total DPS:</span> ${totalDPS.toFixed(2)}</p>`;
             
             return { itemName, itemType, resultsHTML, totalDPS };
         }
