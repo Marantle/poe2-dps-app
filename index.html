@@ -111,12 +111,55 @@
         .clear-history-button:hover {
             background-color: #a00;
         }
+        .info-icon {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            background-color: #c60;
+            color: #0a0a0a;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 20px;
+            font-weight: bold;
+            cursor: help;
+            margin-left: 10px;
+            position: relative;
+        }
+        .info-tooltip {
+            visibility: hidden;
+            width: 300px;
+            background-color: #333;
+            color: #fff;
+            text-align: center;
+            border-radius: 6px;
+            padding: 10px;
+            position: absolute;
+            z-index: 1;
+            bottom: 125%;
+            left: 50%;
+            margin-left: -150px;
+            opacity: 0;
+            transition: opacity 0.3s;
+            font-weight: normal;
+            font-size: 14px;
+            line-height: 1.4;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+        .info-icon:hover .info-tooltip {
+            visibility: visible;
+            opacity: 1;
+        }
     </style>
 </head>
 <body>
     <h1>Path of Exile 2 DPS Calculator</h1>
     <div class="calculator">
-        <textarea id="itemInput" placeholder="Paste your item details here..."></textarea>
+        <label for="itemInput">Paste your item details here:
+            <span class="info-icon">?
+                <span class="info-tooltip">To copy item stats from Path of Exile 2, hover your mouse over the item and press Ctrl+C. Then paste the stats here.</span>
+            </span>
+        </label>
+        <textarea id="itemInput"></textarea>
         <button id="calculateButton">Calculate DPS</button>
         <div id="results"></div>
     </div>
