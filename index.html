@@ -1,349 +1,454 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Path of Exile 2 DPS Calculator</title>
     <style>
-        body {
-            font-family: 'Fontin', Arial, sans-serif;
-            line-height: 1.6;
-            color: #d3d3d3;
-            max-width: 800px;
-            margin: 0 auto;
-            padding: 20px;
-            background-color: #0a0a0a;
-            background-image: linear-gradient(45deg, #0a0a0a 25%, #151515 25%, #151515 50%, #0a0a0a 50%, #0a0a0a 75%, #151515 75%, #151515 100%);
-            background-size: 40px 40px;
-        }
-        h1, h2 {
-            color: #c60;
-            text-align: center;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
-        }
-        .calculator, .history {
-            background-color: rgba(30, 30, 30, 0.9);
-            padding: 20px;
-            border-radius: 5px;
-            box-shadow: 0 0 10px rgba(198, 102, 0, 0.3), inset 0 0 30px rgba(0, 0, 0, 0.5);
-            margin-bottom: 20px;
-            border: 1px solid #c60;
-        }
-        textarea {
-            width: 100%;
-            height: 200px;
-            margin-bottom: 10px;
-            background-color: #1a1a1a;
-            color: #d3d3d3;
-            border: 1px solid #c60;
-            padding: 10px;
-            font-family: 'Courier New', monospace;
-        }
-        button {
-            background-color: #c60;
-            color: #0a0a0a;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 5px;
-            cursor: pointer;
-            transition: background-color 0.3s, transform 0.1s;
-            font-weight: bold;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-        button:hover {
-            background-color: #ff8c00;
-            transform: translateY(-2px);
-        }
-        button:active {
-            transform: translateY(0);
-        }
-        #results, #previousCalculations {
-            margin-top: 20px;
-        }
-        .damage-type {
-            font-weight: bold;
-            color: #ff8c00;
-        }
-        .damage-type.physical { color: #d3d3d3; }
-        .damage-type.fire { color: #ff4500; }
-        .damage-type.cold { color: #1e90ff; }
-        .damage-type.lightning { color: #ffd700; }
-        .damage-type.chaos { color: #8a2be2; }
-        .damage-type.total { color: #ff8c00; }
-        .history-item {
-            border-bottom: 1px solid #333;
-            padding: 10px 0;
-        }
-        .history-item:last-child {
-            border-bottom: none;
-        }
-        .history-link {
-            color: #c60;
-            text-decoration: none;
-            cursor: pointer;
-            transition: color 0.3s;
-        }
-        .history-link:hover {
-            color: #ff8c00;
-            text-decoration: underline;
-        }
-        .total-dps {
-            font-size: 0.9em;
-            color: #888;
-            margin-left: 5px;
-        }
-        .history-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 10px;
-        }
-        .clear-history-button {
-            background-color: #8b0000;
-            color: #d3d3d3;
-            border: none;
-            padding: 5px 10px;
-            border-radius: 3px;
-            cursor: pointer;
-            transition: background-color 0.3s;
-        }
-        .clear-history-button:hover {
-            background-color: #a00;
-        }
-        .info-icon {
-            display: inline-block;
-            width: 20px;
-            height: 20px;
-            background-color: #c60;
-            color: #0a0a0a;
-            border-radius: 50%;
-            text-align: center;
-            line-height: 20px;
-            font-weight: bold;
-            cursor: help;
-            margin-left: 10px;
-            position: relative;
-        }
-        .info-tooltip {
-            visibility: hidden;
-            width: 300px;
-            background-color: #333;
-            color: #fff;
-            text-align: center;
-            border-radius: 6px;
-            padding: 10px;
-            position: absolute;
-            z-index: 1;
-            bottom: 125%;
-            left: 50%;
-            margin-left: -150px;
-            opacity: 0;
-            transition: opacity 0.3s;
-            font-weight: normal;
-            font-size: 14px;
-            line-height: 1.4;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-        }
-        .info-icon:hover .info-tooltip {
-            visibility: visible;
-            opacity: 1;
-        }
+      body {
+        font-family: "Fontin", Arial, sans-serif;
+        line-height: 1.6;
+        color: #d3d3d3;
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 20px;
+        background-color: #0a0a0a;
+        background-image: linear-gradient(
+          45deg,
+          #0a0a0a 25%,
+          #151515 25%,
+          #151515 50%,
+          #0a0a0a 50%,
+          #0a0a0a 75%,
+          #151515 75%,
+          #151515 100%
+        );
+        background-size: 40px 40px;
+      }
+      h1,
+      h2,
+      h3 {
+        color: #c60;
+        text-align: center;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+      }
+      .calculator,
+      .history {
+        background-color: rgba(30, 30, 30, 0.9);
+        padding: 20px;
+        border-radius: 5px;
+        box-shadow: 0 0 10px rgba(198, 102, 0, 0.3),
+          inset 0 0 30px rgba(0, 0, 0, 0.5);
+        margin-bottom: 20px;
+        border: 1px solid #c60;
+      }
+      textarea {
+        width: 100%;
+        height: 200px;
+        margin-bottom: 10px;
+        background-color: #1a1a1a;
+        color: #d3d3d3;
+        border: 1px solid #c60;
+        padding: 10px;
+        font-family: "Courier New", monospace;
+      }
+      button {
+        background-color: #c60;
+        color: #0a0a0a;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: background-color 0.3s, transform 0.1s;
+        font-weight: bold;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+      }
+      button:hover {
+        background-color: #ff8c00;
+        transform: translateY(-2px);
+      }
+      button:active {
+        transform: translateY(0);
+      }
+      #results,
+      #previousCalculations {
+        margin-top: 20px;
+      }
+      .damage-type {
+        font-weight: bold;
+        color: #ff8c00;
+      }
+      .damage-type.physical {
+        color: #d3d3d3;
+      }
+      .damage-type.fire {
+        color: #ff4500;
+      }
+      .damage-type.cold {
+        color: #1e90ff;
+      }
+      .damage-type.lightning {
+        color: #ffd700;
+      }
+      .damage-type.chaos {
+        color: #8a2be2;
+      }
+      .damage-type.total {
+        color: #ff8c00;
+      }
+      .damage-type.elemental {
+        color: #00ff00;
+      }
+      .history-item {
+        border-bottom: 1px solid #333;
+        padding: 10px 0;
+      }
+      .history-item:last-child {
+        border-bottom: none;
+      }
+      .history-link {
+        color: #c60;
+        text-decoration: none;
+        cursor: pointer;
+        transition: color 0.3s;
+      }
+      .history-link:hover {
+        color: #ff8c00;
+        text-decoration: underline;
+      }
+      .total-dps {
+        font-size: 0.9em;
+        color: #888;
+        margin-left: 5px;
+      }
+      .history-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 10px;
+      }
+      .clear-history-button {
+        background-color: #8b0000;
+        color: #d3d3d3;
+        border: none;
+        padding: 5px 10px;
+        border-radius: 3px;
+        cursor: pointer;
+        transition: background-color 0.3s;
+      }
+      .clear-history-button:hover {
+        background-color: #a00;
+      }
+      .info-icon {
+        display: inline-block;
+        width: 20px;
+        height: 20px;
+        background-color: #c60;
+        color: #0a0a0a;
+        border-radius: 50%;
+        text-align: center;
+        line-height: 20px;
+        font-weight: bold;
+        cursor: help;
+        margin-left: 10px;
+        position: relative;
+      }
+      .info-tooltip {
+        visibility: hidden;
+        width: 300px;
+        background-color: #333;
+        color: #fff;
+        text-align: center;
+        border-radius: 6px;
+        padding: 10px;
+        position: absolute;
+        z-index: 1;
+        bottom: 125%;
+        left: 50%;
+        margin-left: -150px;
+        opacity: 0;
+        transition: opacity 0.3s;
+        font-weight: normal;
+        font-size: 14px;
+        line-height: 1.4;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+      }
+      .info-icon:hover .info-tooltip {
+        visibility: visible;
+        opacity: 1;
+      }
     </style>
-</head>
-<body>
+  </head>
+  <body>
     <h1>Path of Exile 2 DPS Calculator</h1>
     <div class="calculator">
-        <label for="itemInput">Paste your item details here:
-            <span class="info-icon">?
-                <span class="info-tooltip">To copy item stats from Path of Exile 2, hover your mouse over the item and press Ctrl+C. Then paste the stats here.</span>
-            </span>
-        </label>
-        <textarea id="itemInput"></textarea>
-        <button id="calculateButton">Calculate DPS</button>
-        <div id="results"></div>
+      <label for="itemInput"
+        >Paste your item details here:
+        <span class="info-icon"
+          >?
+          <span class="info-tooltip"
+            >To copy item stats from Path of Exile 2, hover your mouse over the
+            item and press Ctrl+C. Then paste the stats here.</span
+          >
+        </span>
+      </label>
+      <textarea id="itemInput"></textarea>
+      <button id="calculateButton">Calculate DPS</button>
+      <div id="results"></div>
     </div>
     <div class="history">
-        <div class="history-header">
-            <h2>Previous Calculations</h2>
-            <button id="clearHistoryButton" class="clear-history-button">Clear History</button>
-        </div>
-        <div id="previousCalculations"></div>
+      <div class="history-header">
+        <h2>Previous Calculations</h2>
+        <button id="clearHistoryButton" class="clear-history-button">
+          Clear History
+        </button>
+      </div>
+      <div id="previousCalculations"></div>
     </div>
 
     <script>
-        let calculations = [];
+      let calculations = [];
 
-        function extractItemNameAndType(input) {
-            const lines = input.split('\n');
-            let itemName = '';
-            let itemType = '';
-            let rarity = '';
-            let separatorCount = 0;
-            let hasErrorMessage = false;
+      function extractItemNameAndType(input) {
+        const lines = input.split("\n");
+        let itemName = "";
+        let itemType = "";
+        let rarity = "";
+        let separatorCount = 0;
+        let hasErrorMessage = false;
 
-            for (let i = 0; i < lines.length; i++) {
-                const line = lines[i].trim();
-                
-                if (line.startsWith('Rarity:')) {
-                    rarity = line.split(':')[1].trim().toLowerCase();
-                    continue;
-                }
+        for (let i = 0; i < lines.length; i++) {
+          const line = lines[i].trim();
 
-                if (line === '--------') {
-                    separatorCount++;
-                    continue;
-                }
+          if (line.startsWith("Rarity:")) {
+            rarity = line.split(":")[1].trim().toLowerCase();
+            continue;
+          }
 
-                if (line === 'You cannot use this item. Its stats will be ignored') {
-                    hasErrorMessage = true;
-                    continue;
-                }
+          if (line === "--------") {
+            separatorCount++;
+            continue;
+          }
 
-                if (line.startsWith('Item Class:')) {
-                    continue;
-                }
+          if (line === "You cannot use this item. Its stats will be ignored") {
+            hasErrorMessage = true;
+            continue;
+          }
 
-                if (!itemName && !line.includes(':')) {
-                    itemName = line;
-                    if (rarity === 'magic') {
-                        break;
-                    }
-                } else if (itemName && !itemType && !line.includes(':')) {
-                    itemType = line;
-                    break;
-                }
+          if (line.startsWith("Item Class:")) {
+            continue;
+          }
 
-                if (hasErrorMessage && separatorCount === 2) {
-                    break;
-                }
-
-                if (!hasErrorMessage && separatorCount === 1) {
-                    break;
-                }
+          if (!itemName && !line.includes(":")) {
+            itemName = line;
+            if (rarity === "magic") {
+              break;
             }
+          } else if (itemName && !itemType && !line.includes(":")) {
+            itemType = line;
+            break;
+          }
 
-            if (rarity === 'magic') {
-                itemType = 'Magic Item';
-            }
+          if (hasErrorMessage && separatorCount === 2) {
+            break;
+          }
 
-            return { name: itemName || 'Unnamed Item', type: itemType || 'Unknown Type' };
+          if (!hasErrorMessage && separatorCount === 1) {
+            break;
+          }
         }
 
-        function extractDamageRange(input, damageType) {
-            const regex = new RegExp(`${damageType}:\\s*(\\d+)-(\\d+)`, 'i');
-            const match = input.match(regex);
-            if (match) {
-                const min = parseInt(match[1]);
-                const max = parseInt(match[2]);
-                return { min, max };
-            }
-            return { min: 0, max: 0 };
+        if (rarity === "magic") {
+          itemType = "Magic Item";
         }
 
-        function extractAttacksPerSecond(input) {
-            const match = input.match(/Attacks per Second:\s*([\d.]+)/);
-            return match ? parseFloat(match[1]) : 1;
+        return {
+          name: itemName || "Unnamed Item",
+          type: itemType || "Unknown Type",
+        };
+      }
+
+      function extractDamageRanges(input) {
+        console.log("Input:", input);
+        const damageTypes = [
+          "Physical Damage",
+          "Fire Damage",
+          "Cold Damage",
+          "Lightning Damage",
+          "Chaos Damage",
+        ];
+        let damageRanges = {};
+
+        // Extract specific damage types
+        damageTypes.forEach((type) => {
+          const regex = new RegExp(`${type}:\\s*(\\d+)-(\\d+)`, "i");
+          const match = input.match(regex);
+          if (match) {
+            damageRanges[type] = {
+              min: parseInt(match[1]),
+              max: parseInt(match[2]),
+            };
+            console.log(`Matched ${type}:`, match);
+          }
+        });
+
+        // Extract elemental damage using the provided regex
+        const elementalRegex =
+          /(?<=Elemental Damage: )(\d+-\d+)(?=,|\s|$|$$augmented$$)|(?<=,\s)(\d+-\d+)(?=,|\s|$|$$augmented$$)/g;
+        const elementalMatches = [...input.matchAll(elementalRegex)];
+        const elementalRanges = elementalMatches.map(
+          (match) => match[1] || match[2]
+        );
+
+        console.log("Elemental Ranges:", elementalRanges);
+
+        elementalRanges.forEach((range, index) => {
+          const [min, max] = range.split("-").map((num) => parseInt(num));
+          damageRanges[`Elemental ${index + 1}`] = { min, max };
+          console.log(`Parsed Elemental ${index + 1}:`, { min, max });
+        });
+
+        console.log("Final damageRanges:", damageRanges);
+        return damageRanges;
+      }
+
+      function extractAttacksPerSecond(input) {
+        const match = input.match(/Attacks per Second:\s*([\d.]+)/);
+        return match ? parseFloat(match[1]) : 1;
+      }
+
+      function calculateDPSForType(damageRange, attacksPerSecond) {
+        const averageDamage = (damageRange.min + damageRange.max) / 2;
+        return averageDamage * attacksPerSecond;
+      }
+
+      function calculateDPS(input) {
+        const { name: itemName, type: itemType } =
+          extractItemNameAndType(input);
+        const damageRanges = extractDamageRanges(input);
+        const attacksPerSecond = extractAttacksPerSecond(input);
+
+        let dpsResults = {};
+        let totalDPS = 0;
+
+        for (const [damageType, range] of Object.entries(damageRanges)) {
+          const dps = calculateDPSForType(range, attacksPerSecond);
+          dpsResults[damageType] = dps;
+          totalDPS += dps;
         }
 
-        function calculateDPSForType(damageRange, attacksPerSecond) {
-            const averageDamage = (damageRange.min + damageRange.max) / 2;
-            return averageDamage * attacksPerSecond;
+        let resultsHTML = `<h2>${itemName} (${itemType})</h2>`;
+        resultsHTML += "<h3>DPS Calculations:</h3>";
+
+        for (const [damageType, dps] of Object.entries(dpsResults)) {
+          const cssClass = damageType.toLowerCase().replace(/\s+/g, "-");
+          resultsHTML += `<p><span class="damage-type ${cssClass}">${damageType} DPS:</span> ${dps.toFixed(
+            2
+          )} (${damageRanges[damageType].min}-${
+            damageRanges[damageType].max
+          })</p>`;
         }
 
-        function calculateDPS(input) {
-            const { name: itemName, type: itemType } = extractItemNameAndType(input);
-            const physicalDamage = extractDamageRange(input, 'Physical Damage');
-            const fireDamage = extractDamageRange(input, 'Fire Damage');
-            const coldDamage = extractDamageRange(input, 'Cold Damage');
-            const lightningDamage = extractDamageRange(input, 'Lightning Damage');
-            const chaosDamage = extractDamageRange(input, 'Chaos Damage');
-            const attacksPerSecond = extractAttacksPerSecond(input);
+        resultsHTML += `<p><span class="damage-type total">Total DPS:</span> ${totalDPS.toFixed(
+          2
+        )}</p>`;
 
-            const physicalDPS = calculateDPSForType(physicalDamage, attacksPerSecond);
-            const fireDPS = calculateDPSForType(fireDamage, attacksPerSecond);
-            const coldDPS = calculateDPSForType(coldDamage, attacksPerSecond);
-            const lightningDPS = calculateDPSForType(lightningDamage, attacksPerSecond);
-            const chaosDPS = calculateDPSForType(chaosDamage, attacksPerSecond);
+        return { itemName, itemType, resultsHTML, totalDPS };
+      }
 
-            const totalDPS = physicalDPS + fireDPS + coldDPS + lightningDPS + chaosDPS;
-
-            let resultsHTML = `<h2>${itemName} (${itemType})</h2>`;
-            resultsHTML += '<h3>DPS Calculations:</h3>';
-            if (physicalDPS > 0) resultsHTML += `<p><span class="damage-type physical">Physical DPS:</span> ${physicalDPS.toFixed(2)}</p>`;
-            if (fireDPS > 0) resultsHTML += `<p><span class="damage-type fire">Fire DPS:</span> ${fireDPS.toFixed(2)}</p>`;
-            if (coldDPS > 0) resultsHTML += `<p><span class="damage-type cold">Cold DPS:</span> ${coldDPS.toFixed(2)}</p>`;
-            if (lightningDPS > 0) resultsHTML += `<p><span class="damage-type lightning">Lightning DPS:</span> ${lightningDPS.toFixed(2)}</p>`;
-            if (chaosDPS > 0) resultsHTML += `<p><span class="damage-type chaos">Chaos DPS:</span> ${chaosDPS.toFixed(2)}</p>`;
-            resultsHTML += `<p><span class="damage-type total">Total DPS:</span> ${totalDPS.toFixed(2)}</p>`;
-            
-            return { itemName, itemType, resultsHTML, totalDPS };
+      function saveCalculation(
+        itemName,
+        itemType,
+        resultsHTML,
+        itemData,
+        totalDPS
+      ) {
+        let existingNames = calculations.map((calc) => calc.name);
+        let newName = itemName;
+        let counter = 1;
+        while (existingNames.includes(newName)) {
+          newName = `${itemName} ${counter}`;
+          counter++;
         }
 
-        function saveCalculation(itemName, itemType, resultsHTML, itemData, totalDPS) {
-            let existingNames = calculations.map(calc => calc.name);
-            let newName = itemName;
-            let counter = 1;
-            while (existingNames.includes(newName)) {
-                newName = `${itemName} ${counter}`;
-                counter++;
-            }
-
-            calculations.unshift({ name: newName, type: itemType, results: resultsHTML, data: itemData, totalDPS: totalDPS });
-            if (calculations.length > 25) {
-                calculations.pop();
-            }
-
-            localStorage.setItem('poe2_dps_calculations', JSON.stringify(calculations));
-            displayPreviousCalculations();
+        calculations.unshift({
+          name: newName,
+          type: itemType,
+          results: resultsHTML,
+          data: itemData,
+          totalDPS: totalDPS,
+        });
+        if (calculations.length > 25) {
+          calculations.pop();
         }
 
-        function displayPreviousCalculations() {
-            const previousCalculations = document.getElementById('previousCalculations');
-            previousCalculations.innerHTML = calculations.map((calc, index) => `
+        localStorage.setItem(
+          "poe2_dps_calculations",
+          JSON.stringify(calculations)
+        );
+        displayPreviousCalculations();
+      }
+
+      function displayPreviousCalculations() {
+        const previousCalculations = document.getElementById(
+          "previousCalculations"
+        );
+        previousCalculations.innerHTML = calculations
+          .map(
+            (calc, index) => `
                 <div class="history-item">
                     <a class="history-link" onclick="loadPreviousCalculation(${index})">
-                        ${calc.name} (${calc.type}) <span class="total-dps">(Total DPS: ${calc.totalDPS.toFixed(2)})</span>
+                        ${calc.name} (${
+              calc.type
+            }) <span class="total-dps">(Total DPS: ${calc.totalDPS.toFixed(
+              2
+            )})</span>
                     </a>
                 </div>
-            `).join('');
-        }
+            `
+          )
+          .join("");
+      }
 
-        function loadPreviousCalculation(index) {
-            const calc = calculations[index];
-            document.getElementById('itemInput').value = calc.data;
-            document.getElementById('results').innerHTML = calc.results;
-        }
+      function loadPreviousCalculation(index) {
+        const calc = calculations[index];
+        document.getElementById("itemInput").value = calc.data;
+        document.getElementById("results").innerHTML = calc.results;
+      }
 
-        function performCalculation() {
-            const input = document.getElementById('itemInput').value;
-            const { itemName, itemType, resultsHTML, totalDPS } = calculateDPS(input);
-            document.getElementById('results').innerHTML = resultsHTML;
-            saveCalculation(itemName, itemType, resultsHTML, input, totalDPS);
-        }
+      function performCalculation() {
+        const input = document.getElementById("itemInput").value;
+        const { itemName, itemType, resultsHTML, totalDPS } =
+          calculateDPS(input);
+        document.getElementById("results").innerHTML = resultsHTML;
+        saveCalculation(itemName, itemType, resultsHTML, input, totalDPS);
+      }
 
-        function loadCalculations() {
-            const storedCalculations = localStorage.getItem('poe2_dps_calculations');
-            if (storedCalculations) {
-                calculations = JSON.parse(storedCalculations);
-                displayPreviousCalculations();
-            }
+      function loadCalculations() {
+        const storedCalculations = localStorage.getItem(
+          "poe2_dps_calculations"
+        );
+        if (storedCalculations) {
+          calculations = JSON.parse(storedCalculations);
+          displayPreviousCalculations();
         }
+      }
 
-        function clearHistory() {
-            calculations = [];
-            localStorage.removeItem('poe2_dps_calculations');
-            displayPreviousCalculations();
-        }
+      function clearHistory() {
+        calculations = [];
+        localStorage.removeItem("poe2_dps_calculations");
+        displayPreviousCalculations();
+      }
 
-        document.addEventListener('DOMContentLoaded', () => {
-            const calculateButton = document.getElementById('calculateButton');
-            const clearHistoryButton = document.getElementById('clearHistoryButton');
-            calculateButton.addEventListener('click', performCalculation);
-            clearHistoryButton.addEventListener('click', clearHistory);
-            loadCalculations();
-        });
+      document.addEventListener("DOMContentLoaded", () => {
+        const calculateButton = document.getElementById("calculateButton");
+        const clearHistoryButton =
+          document.getElementById("clearHistoryButton");
+        calculateButton.addEventListener("click", performCalculation);
+        clearHistoryButton.addEventListener("click", clearHistory);
+        loadCalculations();
+      });
     </script>
-</body>
+  </body>
 </html>
-
