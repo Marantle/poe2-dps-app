@@ -303,10 +303,20 @@
 
         console.log("Elemental Ranges:", elementalRanges);
 
+        // New code to identify damage types for elemental ranges
         elementalRanges.forEach((range, index) => {
           const [min, max] = range.split("-").map((num) => parseInt(num));
-          damageRanges[`Elemental ${index + 1}`] = { min, max };
-          console.log(`Parsed Elemental ${index + 1}:`, { min, max });
+          let damageType = `Elemental ${index + 1}`;
+
+          // Check if the range exists later in the file
+          const specificDamageRegex = new RegExp(`Adds ${min} to ${max} (\\w+) Damage`, "i");
+          const specificMatch = input.match(specificDamageRegex);
+          if (specificMatch) {
+            damageType = `${specificMatch[1]} Damage`;
+          }
+
+          damageRanges[damageType] = { min, max };
+          console.log(`Parsed ${damageType}:`, { min, max });
         });
 
         console.log("Final damageRanges:", damageRanges);
