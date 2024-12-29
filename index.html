@@ -309,7 +309,10 @@
           let damageType = `Elemental ${index + 1}`;
 
           // Check if the range exists later in the file
-          const specificDamageRegex = new RegExp(`Adds ${min} to ${max} (\\w+) Damage`, "i");
+          const specificDamageRegex = new RegExp(
+            `Adds ${min} to ${max} (\\w+) Damage`,
+            "i"
+          );
           const specificMatch = input.match(specificDamageRegex);
           if (specificMatch) {
             damageType = `${specificMatch[1]} Damage`;
@@ -341,11 +344,19 @@
 
         let dpsResults = {};
         let totalDPS = 0;
+        let totalElementalDPS = 0;
 
         for (const [damageType, range] of Object.entries(damageRanges)) {
           const dps = calculateDPSForType(range, attacksPerSecond);
           dpsResults[damageType] = dps;
           totalDPS += dps;
+
+          if (
+            damageType !== "Physical Damage" &&
+            damageType !== "Chaos Damage"
+          ) {
+            totalElementalDPS += dps;
+          }
         }
 
         let resultsHTML = `<h2>${itemName} (${itemType})</h2>`;
@@ -360,11 +371,14 @@
           })</p>`;
         }
 
+        resultsHTML += `<p><span class="damage-type elemental">Total Elemental DPS:</span> ${totalElementalDPS.toFixed(
+          2
+        )}</p>`;
         resultsHTML += `<p><span class="damage-type total">Total DPS:</span> ${totalDPS.toFixed(
           2
         )}</p>`;
 
-        return { itemName, itemType, resultsHTML, totalDPS };
+        return { itemName, itemType, resultsHTML, totalDPS, totalElementalDPS };
       }
 
       function saveCalculation(
@@ -372,7 +386,8 @@
         itemType,
         resultsHTML,
         itemData,
-        totalDPS
+        totalDPS,
+        totalElementalDPS
       ) {
         let existingNames = calculations.map((calc) => calc.name);
         let newName = itemName;
@@ -388,7 +403,9 @@
           results: resultsHTML,
           data: itemData,
           totalDPS: totalDPS,
+          totalElementalDPS: totalElementalDPS,
         });
+
         if (calculations.length > 25) {
           calculations.pop();
         }
@@ -407,16 +424,18 @@
         previousCalculations.innerHTML = calculations
           .map(
             (calc, index) => `
-                <div class="history-item">
-                    <a class="history-link" onclick="loadPreviousCalculation(${index})">
-                        ${calc.name} (${
-              calc.type
-            }) <span class="total-dps">(Total DPS: ${calc.totalDPS.toFixed(
-              2
-            )})</span>
-                    </a>
-                </div>
-            `
+                    <div class="history-item">
+                        <a class="history-link" onclick="loadPreviousCalculation(${index})">
+                            ${calc.name} (${calc.type}) 
+                            <span class="total-dps">
+                                (Total DPS: ${calc.totalDPS.toFixed(2)}, 
+                                Elemental DPS: ${calc.totalElementalDPS.toFixed(
+                                  2
+                                )})
+                            </span>
+                        </a>
+                    </div>
+                `
           )
           .join("");
       }
@@ -429,10 +448,17 @@
 
       function performCalculation() {
         const input = document.getElementById("itemInput").value;
-        const { itemName, itemType, resultsHTML, totalDPS } =
+        const { itemName, itemType, resultsHTML, totalDPS, totalElementalDPS } =
           calculateDPS(input);
         document.getElementById("results").innerHTML = resultsHTML;
-        saveCalculation(itemName, itemType, resultsHTML, input, totalDPS);
+        saveCalculation(
+          itemName,
+          itemType,
+          resultsHTML,
+          input,
+          totalDPS,
+          totalElementalDPS
+        );
       }
 
       function loadCalculations() {
