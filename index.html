@@ -178,6 +178,13 @@
         visibility: visible;
         opacity: 1;
       }
+      #clearInputButton {
+        background-color: #8b0000;
+        margin-left: 10px;
+      }
+      #clearInputButton:hover {
+        background-color: #a00;
+      }
     </style>
   </head>
   <body>
@@ -195,6 +202,7 @@
       </label>
       <textarea id="itemInput"></textarea>
       <button id="calculateButton">Calculate DPS</button>
+      <button id="clearInputButton">Clear Input</button>
       <div id="results"></div>
     </div>
     <div class="history">
@@ -383,7 +391,14 @@
           2
         )}</p>`;
 
-        return { itemName, itemType, resultsHTML, totalDPS, totalElementalDPS, physicalDps };
+        return {
+          itemName,
+          itemType,
+          resultsHTML,
+          totalDPS,
+          totalElementalDPS,
+          physicalDps,
+        };
       }
 
       function saveCalculation(
@@ -410,7 +425,7 @@
           data: itemData,
           totalDPS: totalDPS,
           totalElementalDPS: totalElementalDPS,
-          physicalDps: physicalDps
+          physicalDps: physicalDps,
         });
 
         if (calculations.length > 25) {
@@ -456,8 +471,14 @@
 
       function performCalculation() {
         const input = document.getElementById("itemInput").value;
-        const { itemName, itemType, resultsHTML, totalDPS, totalElementalDPS, physicalDps } =
-          calculateDPS(input);
+        const {
+          itemName,
+          itemType,
+          resultsHTML,
+          totalDPS,
+          totalElementalDPS,
+          physicalDps,
+        } = calculateDPS(input);
         document.getElementById("results").innerHTML = resultsHTML;
         saveCalculation(
           itemName,
@@ -465,7 +486,7 @@
           resultsHTML,
           input,
           totalDPS,
-          totalElementalDPS, 
+          totalElementalDPS,
           physicalDps
         );
       }
@@ -486,12 +507,19 @@
         displayPreviousCalculations();
       }
 
+      function clearInput() {
+        document.getElementById("itemInput").value = "";
+        document.getElementById("results").innerHTML = "";
+      }
+
       document.addEventListener("DOMContentLoaded", () => {
         const calculateButton = document.getElementById("calculateButton");
         const clearHistoryButton =
           document.getElementById("clearHistoryButton");
+        const clearInputButton = document.getElementById("clearInputButton");
         calculateButton.addEventListener("click", performCalculation);
         clearHistoryButton.addEventListener("click", clearHistory);
+        clearInputButton.addEventListener("click", clearInput);
         loadCalculations();
       });
     </script>
